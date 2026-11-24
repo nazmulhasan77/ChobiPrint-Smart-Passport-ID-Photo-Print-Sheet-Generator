@@ -29,6 +29,13 @@ export const PrintContainer: React.FC<PrintContainerProps> = ({ sheets, config }
             const leftPct = Math.min(100 - widthPct, Math.max(0, (item.xMm / A4_WIDTH_MM) * 100));
             const topPct = Math.min(100 - heightPct, Math.max(0, (item.yMm / A4_HEIGHT_MM) * 100));
 
+            const hasBorder = config.showPhotoBorder !== false || config.showCutLines;
+            const borderStyle = hasBorder
+              ? config.photoBorderColor === 'black'
+                ? '0.6pt solid #000000'
+                : '0.5pt solid #cbd5e1'
+              : 'none';
+
             return (
               <div
                 key={`print-item-${sheetIdx}-${pIdx}`}
@@ -50,7 +57,7 @@ export const PrintContainer: React.FC<PrintContainerProps> = ({ sheets, config }
                         width: `${(item.heightMm / item.widthMm) * 100}%`,
                         height: `${(item.widthMm / item.heightMm) * 100}%`,
                         transform: 'rotate(90deg)',
-                        outline: config.showCutLines ? '0.5pt solid #d1d5db' : 'none',
+                        outline: borderStyle,
                       }}
                     />
                   </div>
@@ -60,7 +67,7 @@ export const PrintContainer: React.FC<PrintContainerProps> = ({ sheets, config }
                     alt="Print copy"
                     className="w-full h-full object-cover block"
                     style={{
-                      outline: config.showCutLines ? '0.5pt solid #d1d5db' : 'none',
+                      outline: borderStyle,
                     }}
                   />
                 )}

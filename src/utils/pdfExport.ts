@@ -47,10 +47,15 @@ export async function exportToPdf(
         console.error('Error adding image to PDF:', err);
       }
 
-      // Draw subtle cutting border if enabled (useful for white backgrounds)
-      if (config.showCutLines) {
-        doc.setDrawColor(210, 215, 220); // Very light subtle gray
-        doc.setLineWidth(0.15); // ~0.4 pt hairline
+      // Draw photo cutting border if enabled (essential for white backgrounds on white photo paper)
+      if (config.showPhotoBorder !== false || config.showCutLines) {
+        if (config.photoBorderColor === 'black') {
+          doc.setDrawColor(0, 0, 0); // Solid black
+          doc.setLineWidth(0.2); // ~0.5 pt
+        } else {
+          doc.setDrawColor(180, 185, 195); // Subtle cutting gray
+          doc.setLineWidth(0.18);
+        }
         doc.rect(photo.xMm, photo.yMm, photo.widthMm, photo.heightMm, 'S');
       }
 
@@ -131,10 +136,10 @@ export async function downloadSheetAsImage(
 
       ctx.drawImage(img, pxX, pxY, pxW, pxH);
 
-      // Subtle cutting stroke
-      if (config.showCutLines) {
-        ctx.strokeStyle = '#d1d5db';
-        ctx.lineWidth = 1.5;
+      // Photo cutting border
+      if (config.showPhotoBorder !== false || config.showCutLines) {
+        ctx.strokeStyle = config.photoBorderColor === 'black' ? '#000000' : '#cbd5e1';
+        ctx.lineWidth = config.photoBorderColor === 'black' ? 2 : 1.5;
         ctx.strokeRect(pxX, pxY, pxW, pxH);
       }
 

@@ -31,10 +31,22 @@ Instead of opening complex, heavy desktop software like Adobe Photoshop, **Chobi
 - **📄 28 Passport Copies on 1 Single A4 Sheet**:
   - Standard Bangladeshi passport photos ($40 \times 50\text{ mm}$ or $50 \times 40\text{ mm}$) tile in a precise **$4\text{ columns} \times 7\text{ rows} = 28\text{ copies}$** grid on a standard A4 sheet ($210 \times 297\text{ mm}$).
 
-- **✂️ Straight Guillotine Cutting Lanes**:
+- **✂️ Straight Guillotine Cutting Lanes & Photo Cutting Borders**:
   - Continuous, unbroken horizontal and vertical cut channels across rows and columns.
   - Easily slice entire strips using a standard paper trimmer, rotary cutter, ruler & blade, or scissors.
-  - Even distribution of border whitespace between images for comfortable trimming.
+  - **Photo Cutting Border Line**: Optional crisp 1px cutting border in **Light Gray** or **Fine Black** around each photo—essential for cleanly slicing white-background photos on white paper.
+
+- **☀️ Studio Lighting & Touchup (Brightness & Contrast)**:
+  - Interactive Brightness (`-40%` to `+40%`) and Contrast (`-40%` to `+40%`) controls in the crop modal.
+  - **✨ 1-Click Auto Enhance**: Instantly balances indoor mobile portraits (`+15%` brightness, `+10%` contrast) with real-time visual preview and 300 DPI lab bake-in.
+
+- **🌐 Dual Language Support (বাংলা & English)**:
+  - One-click instant language switcher in the header (`English` ↔ `বাংলা`).
+  - Tailored for local Bangladeshi photo studios, cyber cafes, and international users, with persistent settings in `localStorage`.
+
+- **📱 Progressive Web App (PWA) & 100% Offline Support**:
+  - **Installable Desktop/Mobile App**: One-click "Install App" button in the header.
+  - **Runs Offline**: Service Worker caches all core app resources—print and convert photos without an active internet connection.
 
 - **🔄 Image Converter, Resizer & Quality Optimizer**:
   - **Multi-Format Conversion**: Convert between **JPG / JPEG**, **PNG**, and **WEBP** instantly in the browser.

@@ -9,6 +9,8 @@ import {
   Grid,
   Lock,
   Unlock,
+  Sun,
+  Sparkles,
 } from 'lucide-react';
 import type { PhotoDimension, CropSettings, DimensionType, DimensionUnit } from '../types';
 import {
@@ -17,6 +19,7 @@ import {
   convertFromMm,
 } from '../constants/dimensions';
 import { estimateCopiesPerSheet } from '../utils/packingEngine';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface CropModalProps {
   isOpen: boolean;
@@ -55,8 +58,10 @@ export const CropModal: React.FC<CropModalProps> = ({
   fileName,
   initialDimension,
   initialCopies,
+  initialCropSettings,
   onConfirm,
 }) => {
+  const { t } = useLanguage();
   const [selectedDimension, setSelectedDimension] = useState<PhotoDimension>(initialDimension);
   const [selectedCategory, setSelectedCategory] = useState<DimensionType>(initialDimension.category);
   const [copies, setCopies] = useState<number>(initialCopies || 28);
@@ -68,10 +73,14 @@ export const CropModal: React.FC<CropModalProps> = ({
   const [customHeight, setCustomHeight] = useState<number>(initialDimension.heightMm);
 
   // Transform controls
-  const [rotation, setRotation] = useState<number>(0);
+  const [rotation, setRotation] = useState<number>(initialCropSettings?.rotation || 0);
   const [isFlipped, setIsFlipped] = useState<boolean>(false);
   const [showFaceGuide, setShowFaceGuide] = useState<boolean>(true);
   const [showGridGuide, setShowGridGuide] = useState<boolean>(true);
+
+  // Studio lighting & touchup
+  const [brightness, setBrightness] = useState<number>(initialCropSettings?.brightness || 0);
+  const [contrast, setContrast] = useState<number>(initialCropSettings?.contrast || 0);
 
   // Viewport and Crop Rect state (in pixels relative to displayed image container)
   const [imgLayout, setImgLayout] = useState<{ x: number; y: number; w: number; h: number }>({
@@ -432,6 +441,13 @@ export const CropModal: React.FC<CropModalProps> = ({
     fCtx.imageSmoothingEnabled = true;
     fCtx.imageSmoothingQuality = 'high';
 
+    // Apply brightness and contrast filters
+    if (brightness !== 0 || contrast !== 0) {
+      const brightVal = 100 + brightness;
+      const contrastVal = 100 + contrast;
+      fCtx.filter = `brightness(${brightVal}%) contrast(${contrastVal}%)`;
+    }
+
     fCtx.drawImage(tCanvas, sourceX, sourceY, sourceW, sourceH, 0, 0, outW, outH);
 
     const croppedDataUrl = finalCanvas.toDataURL('image/jpeg', 0.95);
@@ -443,6 +459,8 @@ export const CropModal: React.FC<CropModalProps> = ({
       height: sourceH,
       zoom: 1,
       rotation,
+      brightness,
+      contrast,
     };
 
     onConfirm(croppedDataUrl, selectedDimension, copies, cropSettings);
@@ -500,6 +518,7 @@ export const CropModal: React.FC<CropModalProps> = ({
                     className="absolute inset-0 flex items-center justify-center overflow-hidden"
                     style={{
                       transform: `rotate(${rotation}deg) scaleX(${isFlipped ? -1 : 1})`,
+                      filter: `brightness(${100 + brightness}%) contrast(${100 + contrast}%)`,
                     }}
                   >
                     <img
@@ -707,7 +726,7 @@ export const CropModal: React.FC<CropModalProps> = ({
                   title={lockAspect ? 'Aspect ratio locked' : 'Freeform crop from any side'}
                 >
                   {lockAspect ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
-                  <span>{lockAspect ? 'Ratio Locked' : 'Free Crop'}</span>
+                  <span>{lockAspect ? t('ratioLocked') : t('freeCrop')}</span>
                 </button>
                 <button
                   type="button"
@@ -720,7 +739,7 @@ export const CropModal: React.FC<CropModalProps> = ({
                   title="Toggle Passport Face Oval Guide"
                 >
                   <User className="w-3.5 h-3.5" />
-                  Face
+                  <span>{t('faceGuide')}</span>
                 </button>
                 <button
                   type="button"
@@ -733,8 +752,81 @@ export const CropModal: React.FC<CropModalProps> = ({
                   title="Toggle Grid Guide"
                 >
                   <Grid className="w-3.5 h-3.5" />
-                  Grid
+                  <span>{t('gridGuide')}</span>
                 </button>
+              </div>
+            </div>
+
+            {/* Studio Lighting & Touchup Controls */}
+            <div className="mt-2.5 p-2.5 bg-slate-900/95 rounded-xl border border-slate-800 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5 font-bold text-slate-200">
+                  <Sun className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{t('studioTouchup')}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBrightness(15);
+                      setContrast(10);
+                    }}
+                    className="px-2 py-0.5 rounded bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/40 text-[10px] font-semibold flex items-center gap-1 transition cursor-pointer"
+                    title="Auto studio lighting enhance for mobile portraits"
+                  >
+                    <Sparkles className="w-3 h-3 text-amber-300" />
+                    <span>{t('autoEnhance')}</span>
+                  </button>
+                  {(brightness !== 0 || contrast !== 0) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setBrightness(0);
+                        setContrast(0);
+                      }}
+                      className="text-[10px] text-slate-400 hover:text-slate-200 underline cursor-pointer"
+                    >
+                      {t('reset')}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-xs text-slate-300">
+                <div>
+                  <div className="flex justify-between text-[11px] mb-1">
+                    <span className="text-slate-400">{t('brightness')}</span>
+                    <span className="font-mono text-amber-400 font-bold">
+                      {brightness > 0 ? `+${brightness}` : brightness}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="-40"
+                    max="40"
+                    step="2"
+                    value={brightness}
+                    onChange={(e) => setBrightness(Number(e.target.value))}
+                    className="w-full accent-amber-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+                  />
+                </div>
+                <div>
+                  <div className="flex justify-between text-[11px] mb-1">
+                    <span className="text-slate-400">{t('contrast')}</span>
+                    <span className="font-mono text-indigo-400 font-bold">
+                      {contrast > 0 ? `+${contrast}` : contrast}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="-40"
+                    max="40"
+                    step="2"
+                    value={contrast}
+                    onChange={(e) => setContrast(Number(e.target.value))}
+                    className="w-full accent-indigo-400 h-1.5 bg-slate-700 rounded-lg cursor-pointer"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -744,7 +836,7 @@ export const CropModal: React.FC<CropModalProps> = ({
             {/* Step 1: Select Dimension Category */}
             <div className="mb-4">
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-                1. Select Dimension
+                {t('stepDimension')}
               </label>
 
               {/* Category Pills */}
@@ -869,7 +961,7 @@ export const CropModal: React.FC<CropModalProps> = ({
             {/* Step 2: Number of Copies */}
             <div className="mb-4">
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-                2. Number of Copies
+                {t('stepCopies')}
               </label>
               <div className="flex items-center gap-2">
                 <button
@@ -899,23 +991,25 @@ export const CropModal: React.FC<CropModalProps> = ({
               {/* Quick Fill Preset Buttons */}
               <div className="flex flex-wrap gap-1.5 mt-2">
                 <span className="text-[11px] text-slate-400 self-center mr-1">Quick:</span>
-                {[1, 4, 8, 12, copiesPerA4.total, 28, 50].map((num) => {
-                  const isCurrent = copies === num;
-                  return (
-                    <button
-                      key={num}
-                      type="button"
-                      onClick={() => setCopies(num)}
-                      className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition cursor-pointer ${
-                        isCurrent
-                          ? 'bg-indigo-600 text-white border-indigo-600 font-bold'
-                          : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
-                      }`}
-                    >
-                      {num === copiesPerA4.total ? `${num} (1 Full A4)` : num}
-                    </button>
-                  );
-                })}
+                {Array.from(new Set([1, 4, 8, 12, copiesPerA4.total, 28, 50]))
+                  .sort((a, b) => a - b)
+                  .map((num) => {
+                    const isCurrent = copies === num;
+                    return (
+                      <button
+                        key={`preset-${num}`}
+                        type="button"
+                        onClick={() => setCopies(num)}
+                        className={`px-2.5 py-0.5 rounded-full text-xs font-medium border transition cursor-pointer ${
+                          isCurrent
+                            ? 'bg-indigo-600 text-white border-indigo-600 font-bold'
+                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
+                        }`}
+                      >
+                        {num === copiesPerA4.total ? `${num} (1 Full A4)` : num}
+                      </button>
+                    );
+                  })}
               </div>
             </div>
 
@@ -928,7 +1022,7 @@ export const CropModal: React.FC<CropModalProps> = ({
                 </span>
               </div>
               <p className="mt-1 text-[11px] text-indigo-700 leading-relaxed">
-                {copies} copies will take approximately{' '}
+                {copies} {t('copies')} will take approximately{' '}
                 <strong className="font-bold">
                   {Math.ceil(copies / copiesPerA4.total)} A4 sheet
                   {Math.ceil(copies / copiesPerA4.total) > 1 ? 's' : ''}
@@ -944,7 +1038,7 @@ export const CropModal: React.FC<CropModalProps> = ({
                 onClick={onClose}
                 className="w-1/3 py-2.5 px-4 rounded-xl border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100 transition text-sm cursor-pointer"
               >
-                Cancel
+                {t('cancel')}
               </button>
               <button
                 type="button"
@@ -952,7 +1046,7 @@ export const CropModal: React.FC<CropModalProps> = ({
                 className="w-2/3 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md shadow-indigo-600/20 transition flex items-center justify-center gap-2 text-sm cursor-pointer"
               >
                 <Check className="w-4 h-4 stroke-[2.5]" />
-                Crop & Place on A4 (ক্রপ ও পেপারে সাজান)
+                <span>{t('applyCrop')}</span>
               </button>
             </div>
           </div>

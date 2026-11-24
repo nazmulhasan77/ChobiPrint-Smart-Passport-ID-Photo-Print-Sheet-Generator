@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#0284c7" />
+    </linearGradient>
+  </defs>
+  <!-- Background Rounded Rect -->
+  <rect width="512" height="512" rx="112" fill="url(#grad1)" />
+  
+  <!-- Outer Paper Sheet -->
+  <rect x="100" y="80" width="312" height="352" rx="24" fill="#ffffff" opacity="0.95" />
+  
+  <!-- Passport Photo 1 -->
+  <rect x="136" y="120" width="105" height="130" rx="12" fill="url(#grad2)" />
+  <!-- Passport Photo 2 -->
+  <rect x="271" y="120" width="105" height="130" rx="12" fill="url(#grad2)" />
+  
+  <!-- Silhouette 1 -->
+  <circle cx="188" cy="165" r="24" fill="#ffffff" opacity="0.9" />
+  <path d="M 148 235 C 148 200, 228 200, 228 235 Z" fill="#ffffff" opacity="0.9" />
+  
+  <!-- Silhouette 2 -->
+  <circle cx="323" cy="165" r="24" fill="#ffffff" opacity="0.9" />
+  <path d="M 283 235 C 283 200, 363 200, 363 235 Z" fill="#ffffff" opacity="0.9" />
+
+  <!-- Passport Photo 3 -->
+  <rect x="136" y="275" width="105" height="130" rx="12" fill="url(#grad2)" />
+  <!-- Passport Photo 4 -->
+  <rect x="271" y="275" width="105" height="130" rx="12" fill="url(#grad2)" />
+
+  <!-- Cutting Scissors / Sparkle Accent -->
+  <circle cx="410" cy="100" r="36" fill="#10b981" />
+  <path d="M 400 90 L 420 110 M 420 90 L 400 110" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+</svg>

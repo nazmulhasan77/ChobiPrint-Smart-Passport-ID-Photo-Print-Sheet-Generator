@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   Upload,
   Sparkles,
@@ -8,6 +8,8 @@ import {
   Info,
   Printer,
   Sliders,
+  Languages,
+  Smartphone,
 } from 'lucide-react';
 import type { PhotoItem, PhotoDimension, SheetLayout, LayoutConfig, CropSettings, PhotoOrientation } from './types';
 import {
@@ -21,13 +23,56 @@ import { SheetPreview } from './components/SheetPreview';
 import { PrintContainer } from './components/PrintContainer';
 import { ImageConverter } from './components/ImageConverter';
 import { generateSamplePortrait } from './utils/sampleGenerator';
+import { useLanguage } from './i18n/LanguageContext';
 
 export const App: React.FC = () => {
+  const { lang, toggleLang, t } = useLanguage();
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
   const [sheets, setSheets] = useState<SheetLayout[]>([]);
   const [layoutConfig, setLayoutConfig] = useState<LayoutConfig>(DEFAULT_LAYOUT_CONFIG);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'print-sheet' | 'converter'>('print-sheet');
+
+  // PWA Install State
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isAppInstalled, setIsAppInstalled] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    const handleAppInstalled = () => {
+      setIsAppInstalled(true);
+      setDeferredPrompt(null);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) {
+      alert(
+        lang === 'bn'
+          ? 'ChobiPrint অফলাইনে চালানোর জন্য ব্রাউজারের অ্যাড্রেস বার থেকে "Install" আইকন চাপুন অথবা মেনু থেকে "Add to Home Screen / Install ChobiPrint" সিলেক্ট করুন।'
+          : 'To install ChobiPrint for offline use, click the Install icon in your browser address bar or select "Install ChobiPrint" from the menu.'
+      );
+      return;
+    }
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setIsAppInstalled(true);
+      setDeferredPrompt(null);
+    }
+  };
 
   // Active crop modal state
   const [activeCropPhoto, setActiveCropPhoto] = useState<PhotoItem | null>(null);
@@ -256,14 +301,14 @@ export const App: React.FC = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="font-extrabold text-slate-900 text-lg tracking-tight">
-                  ChobiPrint (ছবিপ্রিন্ট)
+                  {t('appName')}
                 </h1>
                 <span className="hidden sm:inline px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
                   300 DPI A4
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                Smart Passport, Stamp & ID Photo Print Sheet Generator
+                {t('tagline')}
               </p>
             </div>
           </div>
@@ -273,51 +318,73 @@ export const App: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveTab('print-sheet')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'print-sheet'
                   ? 'bg-white text-indigo-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Printer className="w-3.5 h-3.5" />
-              <span>Passport Print Sheet</span>
+              <span>{t('tabPassport')}</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('converter')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'converter'
                   ? 'bg-white text-indigo-700 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
               <Sliders className="w-3.5 h-3.5" />
-              <span>Converter & Resizer</span>
+              <span>{t('tabConverter')}</span>
             </button>
           </nav>
 
           {/* Quick Header Actions */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
+            {/* Language Switcher */}
+            <button
+              type="button"
+              onClick={toggleLang}
+              className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-indigo-50 hover:border-indigo-200 text-slate-700 hover:text-indigo-700 text-xs font-bold flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
+              title="Switch Language / ভাষা পরিবর্তন করুন"
+            >
+              <Languages className="w-3.5 h-3.5 text-indigo-600" />
+              <span>{lang === 'bn' ? 'English' : 'বাংলা'}</span>
+            </button>
+
+            {/* PWA Install Button */}
+            <button
+              type="button"
+              onClick={handleInstallClick}
+              className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
+              title={t('installApp')}
+            >
+              <Smartphone className="w-3.5 h-3.5 text-indigo-600" />
+              <span className="hidden sm:inline">{isAppInstalled ? t('appInstalled') : t('installApp')}</span>
+            </button>
+
             {activeTab === 'print-sheet' && (
               <>
                 <button
                   type="button"
                   onClick={handleLoadDemo}
-                  className="px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold flex items-center gap-1.5 transition"
+                  className="px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
                   title="Load sample photos to test instantly"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Load Demo</span>
+                  <span className="hidden sm:inline">{t('loadDemo')}</span>
                 </button>
 
                 {photos.length > 0 && (
                   <button
                     type="button"
                     onClick={handleClearAll}
-                    className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-medium transition"
+                    className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-medium transition cursor-pointer"
                   >
-                    Clear All
+                    {t('clearAll')}
                   </button>
                 )}
               </>
@@ -331,26 +398,26 @@ export const App: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab('print-sheet')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
             activeTab === 'print-sheet'
               ? 'bg-indigo-50 border border-indigo-200 text-indigo-700'
               : 'text-slate-600 hover:bg-slate-50'
           }`}
         >
           <Printer className="w-3.5 h-3.5" />
-          <span>Passport Print</span>
+          <span>{t('tabPassport')}</span>
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('converter')}
-          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
             activeTab === 'converter'
               ? 'bg-indigo-50 border border-indigo-200 text-indigo-700'
               : 'text-slate-600 hover:bg-slate-50'
           }`}
         >
           <Sliders className="w-3.5 h-3.5" />
-          <span>Converter & Resizer</span>
+          <span>{t('tabConverter')}</span>
         </button>
       </div>
 
@@ -384,10 +451,10 @@ export const App: React.FC = () => {
                 <Upload className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-slate-800 text-sm mb-1">
-                Click or Drag & Drop Photos Here
+                {t('uploadTitle')}
               </h3>
               <p className="text-xs text-slate-500 max-w-xs">
-                Supports JPG, PNG, WEBP. Select multiple photos with individual dimensions & copy counts.
+                {t('uploadSubtitle')}
               </p>
               <div className="mt-3 flex flex-wrap justify-center gap-1.5 text-[11px] font-mono text-slate-600">
                 <span className="bg-slate-100 px-2 py-0.5 rounded">Passport (40×50 mm)</span>
@@ -401,7 +468,7 @@ export const App: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">
                   <div className="flex items-center gap-2">
-                    <h2 className="text-sm font-bold text-slate-800">Selected Photos Queue</h2>
+                    <h2 className="text-sm font-bold text-slate-800">{t('queueTitle')}</h2>
                     <span className="px-2 py-0.5 bg-slate-200 text-slate-700 rounded-full text-xs font-mono font-semibold">
                       {photos.length}
                     </span>
@@ -409,10 +476,10 @@ export const App: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1"
+                    className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    Add More
+                    <span>{t('addMore')}</span>
                   </button>
                 </div>
 
@@ -460,12 +527,12 @@ export const App: React.FC = () => {
                     {isProcessing ? (
                       <>
                         <RefreshCw className="w-5 h-5 animate-spin" />
-                        <span>Optimizing & Packing Layout...</span>
+                        <span>{t('arranging')}</span>
                       </>
                     ) : (
                       <>
                         <Sparkles className="w-5 h-5" />
-                        <span>Process & Arrange on A4 Sheet</span>
+                        <span>{t('processBtn')} ({totalCopies} {t('copies')})</span>
                       </>
                     )}
                   </button>
@@ -477,7 +544,7 @@ export const App: React.FC = () => {
             <div className="bg-white rounded-xl border border-slate-200 p-4 text-xs text-slate-600 space-y-2">
               <div className="font-bold text-slate-800 flex items-center gap-1.5">
                 <Info className="w-4 h-4 text-indigo-600" />
-                Bangladesh Standard Studio Dimensions Guide
+                {t('guideTitle')}
               </div>
               <ul className="space-y-1.5 text-slate-500 pl-5 list-disc">
                 <li>

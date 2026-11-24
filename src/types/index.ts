@@ -20,6 +20,8 @@ export interface CropSettings {
   height: number;
   zoom: number;
   rotation: number; // 0, 90, 180, 270
+  brightness?: number; // -50 to +50, default 0
+  contrast?: number; // -50 to +50, default 0
 }
 
 export interface PhotoItem {
@@ -63,6 +65,8 @@ export interface LayoutConfig {
   distributeHorizontally: boolean; // Distribute horizontal extra space evenly between images for aligned cutting
   verticalAlignment: 'top' | 'distribute' | 'center'; // 'top': packs to top, leaving large unused paper at bottom for reuse!
   showCutLines: boolean; // 0.5pt subtle border
+  showPhotoBorder?: boolean; // 1px photo cutting border for clean slicing (especially for white backgrounds)
+  photoBorderColor?: 'gray' | 'black'; // 'gray' (#94a3b8) or 'black' (#000000)
   showCornerMarks: boolean; // corner tick marks
   showPaperReuseIndicator: boolean; // visual dashed line showing reusable unused paper area
   dpi: number; // 300 DPI

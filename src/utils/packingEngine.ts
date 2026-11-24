@@ -11,6 +11,8 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfig = {
   distributeHorizontally: true, // Distribute horizontal extra space evenly between images
   verticalAlignment: 'top', // Pack photos to top, leaving large empty space at bottom for reuse!
   showCutLines: true,
+  showPhotoBorder: true,
+  photoBorderColor: 'gray',
   showCornerMarks: true,
   showPaperReuseIndicator: true,
   dpi: 300,

@@ -14,6 +14,7 @@ import {
 import type { SheetLayout, LayoutConfig } from '../types';
 import { exportToPdf, downloadSheetAsImage } from '../utils/pdfExport';
 import { A4_WIDTH_MM, A4_HEIGHT_MM } from '../constants/dimensions';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface SheetPreviewProps {
   sheets: SheetLayout[];
@@ -27,6 +28,7 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
   config,
   onUpdateConfig,
 }) => {
+  const { t } = useLanguage();
   const [currentSheetIdx, setCurrentSheetIdx] = useState<number>(0);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [showConfigDrawer, setShowConfigDrawer] = useState<boolean>(false);
@@ -89,7 +91,7 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
       {/* Preview Header & Controls */}
       <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="font-bold text-slate-800 text-sm">Sheet Preview</span>
+          <span className="font-bold text-slate-800 text-sm">{t('sheetPreview')}</span>
           <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-md text-xs font-mono font-semibold">
             {sheets.length} A4 {sheets.length === 1 ? 'Sheet' : 'Sheets'}
           </span>
@@ -112,7 +114,7 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
             title="Sheet Layout Settings (Margins, Spacing, Cut lines)"
           >
             <Settings2 className="w-4 h-4" />
-            <span className="hidden sm:inline">Settings</span>
+            <span className="hidden sm:inline">{t('settings')}</span>
           </button>
 
           {/* Download Image Button */}
@@ -124,7 +126,7 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
             title="Download Current Sheet as 300 DPI PNG"
           >
             <ImageIcon className="w-4 h-4 text-slate-500" />
-            <span className="hidden md:inline">PNG Image</span>
+            <span className="hidden md:inline">{t('downloadPng')}</span>
           </button>
 
           {/* Download PDF Button */}
@@ -136,7 +138,7 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
             title="Download Multi-page High-Resolution Printable PDF"
           >
             <Download className="w-4 h-4" />
-            <span>PDF (All Pages)</span>
+            <span>{t('downloadPdf')}</span>
           </button>
 
           {/* Browser Print Button */}
@@ -147,7 +149,7 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
             title="Print directly to physical photo printer"
           >
             <Printer className="w-4 h-4" />
-            <span className="hidden sm:inline">Print</span>
+            <span className="hidden sm:inline">{t('print')}</span>
           </button>
         </div>
       </div>
@@ -159,7 +161,7 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
           <div className="flex flex-col justify-between">
             <span className="text-slate-700 font-semibold mb-1 flex items-center gap-1">
               <BookmarkCheck className="w-3.5 h-3.5 text-indigo-600" />
-              Vertical Alignment
+              {t('verticalAlign')}
             </span>
             <div className="bg-white p-1 rounded-lg border border-slate-200 flex flex-col gap-1">
               <label className="flex items-center gap-2 p-1 rounded hover:bg-slate-50 cursor-pointer">
@@ -172,7 +174,7 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
                   className="accent-indigo-600 w-3.5 h-3.5 cursor-pointer"
                 />
                 <span className="text-[11px] font-medium text-slate-700">
-                  Top (Save bottom paper)
+                  {t('alignTop')}
                 </span>
               </label>
               <label className="flex items-center gap-2 p-1 rounded hover:bg-slate-50 cursor-pointer">
@@ -184,7 +186,7 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
                   onChange={() => onUpdateConfig({ ...config, verticalAlignment: 'distribute' })}
                   className="accent-indigo-600 w-3.5 h-3.5 cursor-pointer"
                 />
-                <span className="text-[11px] text-slate-600">Distribute vertically</span>
+                <span className="text-[11px] text-slate-600">{t('alignDistribute')}</span>
               </label>
               <label className="flex items-center gap-2 p-1 rounded hover:bg-slate-50 cursor-pointer">
                 <input
@@ -238,18 +240,50 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
               <Scissors className="w-3.5 h-3.5 text-indigo-600" />
               Cutting Guides
             </span>
-            <div className="bg-white p-2 rounded-lg border border-slate-200 flex flex-col gap-1.5">
+            <div className="bg-white p-2 rounded-lg border border-slate-200 flex flex-col gap-2">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={config.showCutLines}
+                  checked={config.showPhotoBorder !== false}
                   onChange={(e) =>
-                    onUpdateConfig({ ...config, showCutLines: e.target.checked })
+                    onUpdateConfig({
+                      ...config,
+                      showPhotoBorder: e.target.checked,
+                      showCutLines: e.target.checked,
+                    })
                   }
                   className="rounded accent-indigo-600 w-3.5 h-3.5 cursor-pointer"
                 />
-                <span className="text-[11px] text-slate-600">Subtle border stroke</span>
+                <span className="text-[11px] font-semibold text-slate-700">{t('photoBorder')}</span>
               </label>
+
+              {config.showPhotoBorder !== false && (
+                <div className="flex items-center gap-1.5 pl-5">
+                  <button
+                    type="button"
+                    onClick={() => onUpdateConfig({ ...config, photoBorderColor: 'gray' })}
+                    className={`px-2 py-0.5 text-[10px] rounded font-medium border transition ${
+                      config.photoBorderColor !== 'black'
+                        ? 'bg-slate-100 border-slate-400 text-slate-800 font-bold'
+                        : 'bg-white border-slate-200 text-slate-500'
+                    }`}
+                  >
+                    {t('lightGray')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onUpdateConfig({ ...config, photoBorderColor: 'black' })}
+                    className={`px-2 py-0.5 text-[10px] rounded font-medium border transition ${
+                      config.photoBorderColor === 'black'
+                        ? 'bg-slate-900 border-slate-900 text-white font-bold'
+                        : 'bg-white border-slate-200 text-slate-500'
+                    }`}
+                  >
+                    {t('fineBlack')}
+                  </button>
+                </div>
+              )}
+
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -259,7 +293,7 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
                   }
                   className="rounded accent-indigo-600 w-3.5 h-3.5 cursor-pointer"
                 />
-                <span className="text-[11px] text-slate-600">Corner tick marks</span>
+                <span className="text-[11px] text-slate-600">{t('cornerMarks')}</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -270,7 +304,7 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
                   }
                   className="rounded accent-indigo-600 w-3.5 h-3.5 cursor-pointer"
                 />
-                <span className="text-[11px] text-slate-600">Show reuse paper line</span>
+                <span className="text-[11px] text-slate-600">{t('reusePaper')}</span>
               </label>
             </div>
           </div>
@@ -279,7 +313,7 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
           <div className="flex flex-col justify-between space-y-2">
             <div>
               <div className="flex justify-between text-[11px] text-slate-600 mb-0.5">
-                <span>Page Margin:</span>
+                <span>{t('pageMargin')}:</span>
                 <span className="font-mono">{config.marginMm} mm</span>
               </div>
               <input
@@ -296,7 +330,7 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
             </div>
             <div>
               <div className="flex justify-between text-[11px] text-slate-600 mb-0.5">
-                <span>Row Spacing:</span>
+                <span>{t('rowSpacing')}:</span>
                 <span className="font-mono">{config.spacingMm} mm</span>
               </div>
               <input
@@ -345,30 +379,39 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
                 }}
               >
                 {/* Photo Image (with 90deg orientation support) */}
-                {item.isRotated ? (
-                  <div className="w-full h-full flex items-center justify-center overflow-hidden">
+                {(() => {
+                  const hasBorder = config.showPhotoBorder !== false || config.showCutLines;
+                  const borderOutline = hasBorder
+                    ? config.photoBorderColor === 'black'
+                      ? '1px solid #000000'
+                      : '1px solid #cbd5e1'
+                    : 'none';
+
+                  return item.isRotated ? (
+                    <div className="w-full h-full flex items-center justify-center overflow-hidden">
+                      <img
+                        src={item.croppedUrl}
+                        alt={`Photo copy ${item.itemNumber}`}
+                        className="pointer-events-none block object-cover"
+                        style={{
+                          width: `${(item.heightMm / item.widthMm) * 100}%`,
+                          height: `${(item.widthMm / item.heightMm) * 100}%`,
+                          transform: 'rotate(90deg)',
+                          outline: borderOutline,
+                        }}
+                      />
+                    </div>
+                  ) : (
                     <img
                       src={item.croppedUrl}
                       alt={`Photo copy ${item.itemNumber}`}
-                      className="pointer-events-none block object-cover"
+                      className="w-full h-full object-cover block pointer-events-none"
                       style={{
-                        width: `${(item.heightMm / item.widthMm) * 100}%`,
-                        height: `${(item.widthMm / item.heightMm) * 100}%`,
-                        transform: 'rotate(90deg)',
-                        outline: config.showCutLines ? '1px solid #d1d5db' : 'none',
+                        outline: borderOutline,
                       }}
                     />
-                  </div>
-                ) : (
-                  <img
-                    src={item.croppedUrl}
-                    alt={`Photo copy ${item.itemNumber}`}
-                    className="w-full h-full object-cover block pointer-events-none"
-                    style={{
-                      outline: config.showCutLines ? '1px solid #d1d5db' : 'none',
-                    }}
-                  />
-                )}
+                  );
+                })()}
 
                 {/* Corner Cutting Marks */}
                 {config.showCornerMarks && (
@@ -401,10 +444,10 @@ export const SheetPreview: React.FC<SheetPreviewProps> = ({
               >
                 <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/95 border border-emerald-300 text-[9px] font-medium text-emerald-800 shadow-xs mb-1">
                   <Scissors className="w-3 h-3 text-emerald-600" />
-                  <span>Cut Here to Save Unused Paper</span>
+                  <span>{t('cutToSavePaper')}</span>
                 </div>
                 <span className="text-[8px] text-emerald-700/80 font-mono">
-                  {Math.round(unusedHeightMm)} mm clean photo paper remaining for later use
+                  {Math.round(unusedHeightMm)} {t('cleanPaperRemaining')}
                 </span>
               </div>
             )}

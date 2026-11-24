@@ -26,12 +26,14 @@ import {
   loadImageDimensions,
 } from '../utils/imageConverter';
 import { generateSamplePortrait } from '../utils/sampleGenerator';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface ImageConverterProps {
   onSendToPrintSheet?: (imageUrl: string, fileName: string) => void;
 }
 
 export const ImageConverter: React.FC<ImageConverterProps> = ({ onSendToPrintSheet }) => {
+  const { t } = useLanguage();
   const [items, setItems] = useState<ConvertedImageResult[]>([]);
   const [isProcessingAll, setIsProcessingAll] = useState(false);
   const [isZipping, setIsZipping] = useState(false);
@@ -191,10 +193,10 @@ export const ImageConverter: React.FC<ImageConverterProps> = ({ onSendToPrintShe
           </div>
           <div>
             <h1 className="text-lg font-bold text-slate-800">
-              Image Converter & Resizer
+              {t('convTitle')}
             </h1>
             <p className="text-xs text-slate-500">
-              Convert format (JPG, PNG, WEBP), adjust dimensions or scale %, and compress in real-time.
+              {t('convSubtitle')}
             </p>
           </div>
         </div>
@@ -203,10 +205,10 @@ export const ImageConverter: React.FC<ImageConverterProps> = ({ onSendToPrintShe
           <button
             type="button"
             onClick={handleLoadDemo}
-            className="px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold flex items-center gap-1.5 transition"
+            className="px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Load Demo Photo</span>
+            <span>{t('loadDemo')}</span>
           </button>
 
           {items.length > 0 && (
@@ -215,22 +217,22 @@ export const ImageConverter: React.FC<ImageConverterProps> = ({ onSendToPrintShe
                 type="button"
                 onClick={handleDownloadZip}
                 disabled={isZipping || isProcessingAll}
-                className="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-xs disabled:opacity-50"
+                className="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-1.5 transition shadow-xs disabled:opacity-50 cursor-pointer"
               >
                 {isZipping ? (
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                 ) : (
                   <Archive className="w-3.5 h-3.5" />
                 )}
-                <span>Download All (.zip)</span>
+                <span>{t('downloadAllZip')}</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleClearAll}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-medium transition"
+                className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-medium transition cursor-pointer"
               >
-                Clear All
+                {t('clearAll')}
               </button>
             </>
           )}
@@ -287,7 +289,7 @@ export const ImageConverter: React.FC<ImageConverterProps> = ({ onSendToPrintShe
             {/* Target Output Format */}
             <div className="space-y-2">
               <label className="text-xs font-semibold text-slate-700 block">
-                Target Output Format
+                {t('targetFormat')}
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {(['jpeg', 'png', 'webp'] as OutputFormat[]).map((fmt) => (
@@ -295,7 +297,7 @@ export const ImageConverter: React.FC<ImageConverterProps> = ({ onSendToPrintShe
                     key={fmt}
                     type="button"
                     onClick={() => setSettings((s) => ({ ...s, format: fmt }))}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold uppercase transition flex flex-col items-center justify-center border ${
+                    className={`py-2 px-3 rounded-xl text-xs font-bold uppercase transition flex flex-col items-center justify-center border cursor-pointer ${
                       settings.format === fmt
                         ? 'border-indigo-600 bg-indigo-50 text-indigo-700 ring-2 ring-indigo-500/20'
                         : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
@@ -314,7 +316,7 @@ export const ImageConverter: React.FC<ImageConverterProps> = ({ onSendToPrintShe
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-semibold text-slate-700">
-                  Image Quality
+                  {t('imageQuality')}
                 </label>
                 <span className="text-xs font-mono font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-100">
                   {settings.format === 'png' ? '100% (Lossless)' : `${settings.quality}%`}
@@ -340,20 +342,20 @@ export const ImageConverter: React.FC<ImageConverterProps> = ({ onSendToPrintShe
             {/* Resizer Mode Selection */}
             <div className="space-y-3 border-t border-slate-100 pt-3">
               <label className="text-xs font-semibold text-slate-700 block">
-                Resize Options
+                {t('resizeOptions')}
               </label>
 
               <div className="flex gap-2">
                 {[
-                  { id: 'original', label: 'Original Size' },
-                  { id: 'percentage', label: 'Scale (%)' },
-                  { id: 'dimensions', label: 'Custom Dimension' },
+                  { id: 'original', label: t('originalSize') },
+                  { id: 'percentage', label: t('scalePct') },
+                  { id: 'dimensions', label: t('customDim') },
                 ].map((mode) => (
                   <button
                     key={mode.id}
                     type="button"
                     onClick={() => setSettings((s) => ({ ...s, resizeMode: mode.id as any }))}
-                    className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border transition ${
+                    className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-medium border transition cursor-pointer ${
                       settings.resizeMode === mode.id
                         ? 'border-indigo-600 bg-indigo-50 text-indigo-700 font-semibold'
                         : 'border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -509,15 +511,15 @@ export const ImageConverter: React.FC<ImageConverterProps> = ({ onSendToPrintShe
             <div className="bg-slate-900 text-white rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-6">
                 <div>
-                  <span className="text-[11px] text-slate-400 block font-medium">Total Images</span>
+                  <span className="text-[11px] text-slate-400 block font-medium">{t('totalImages')}</span>
                   <span className="text-base font-bold font-mono">{items.length}</span>
                 </div>
                 <div>
-                  <span className="text-[11px] text-slate-400 block font-medium">Original Total</span>
+                  <span className="text-[11px] text-slate-400 block font-medium">{t('originalTotal')}</span>
                   <span className="text-base font-bold font-mono">{formatBytes(totalOriginalSize)}</span>
                 </div>
                 <div>
-                  <span className="text-[11px] text-slate-400 block font-medium">Converted Total</span>
+                  <span className="text-[11px] text-slate-400 block font-medium">{t('convertedTotal')}</span>
                   <span className="text-base font-bold font-mono text-emerald-400">
                     {formatBytes(totalConvertedSize)}
                   </span>
@@ -527,10 +529,10 @@ export const ImageConverter: React.FC<ImageConverterProps> = ({ onSendToPrintShe
               {totalSavings > 0 && (
                 <div className="bg-emerald-500/20 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-right">
                   <span className="text-[10px] text-emerald-300 block font-bold uppercase tracking-wider">
-                    Total Saved
+                    {t('totalSaved')}
                   </span>
                   <span className="text-sm font-extrabold text-emerald-400 font-mono">
-                    🔻 {totalSavings}% Smaller
+                    🔻 {totalSavings}% {t('smaller')}
                   </span>
                 </div>
               )}
@@ -544,18 +546,18 @@ export const ImageConverter: React.FC<ImageConverterProps> = ({ onSendToPrintShe
                 <Sliders className="w-8 h-8" />
               </div>
               <h3 className="font-bold text-slate-700 text-base mb-1">
-                No Images Uploaded Yet
+                {t('noImagesYet')}
               </h3>
               <p className="text-xs text-slate-500 max-w-sm mb-5">
-                Drop your photos on the left or click "Load Demo Photo" above to test image conversion and resizing.
+                {t('dropToConvert')}
               </p>
               <button
                 type="button"
                 onClick={handleLoadDemo}
-                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-2 transition shadow-xs"
+                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center gap-2 transition shadow-xs cursor-pointer"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Test with Sample Photo</span>
+                <span>{t('testSample')}</span>
               </button>
             </div>
           ) : (
@@ -630,21 +632,21 @@ export const ImageConverter: React.FC<ImageConverterProps> = ({ onSendToPrintShe
                         type="button"
                         onClick={() => handleDownloadSingle(item)}
                         disabled={!item.convertedBlob}
-                        className="flex-1 sm:flex-none px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-xs disabled:opacity-50"
+                        className="flex-1 sm:flex-none px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition shadow-xs disabled:opacity-50 cursor-pointer"
                       >
                         <Download className="w-3.5 h-3.5" />
-                        <span>Download</span>
+                        <span>{t('download')}</span>
                       </button>
 
                       {onSendToPrintSheet && (
                         <button
                           type="button"
                           onClick={() => onSendToPrintSheet(item.convertedUrl || item.originalUrl, item.originalFile.name)}
-                          className="flex-1 sm:flex-none px-3 py-1.5 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition"
+                          className="flex-1 sm:flex-none px-3 py-1.5 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition cursor-pointer"
                           title="Open photo in Passport Print Sheet"
                         >
                           <Printer className="w-3.5 h-3.5" />
-                          <span>Print Sheet</span>
+                          <span>{t('sendToPrint')}</span>
                         </button>
                       )}
 

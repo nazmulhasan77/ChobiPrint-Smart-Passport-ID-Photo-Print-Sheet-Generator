@@ -1,0 +1,19 @@
+{
+  "name": "ChobiPrint (ছবিপ্রিন্ট)",
+  "short_name": "ChobiPrint",
+  "description": "Smart Passport, Stamp & ID Photo Print Sheet Generator & Image Converter",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f8fafc",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

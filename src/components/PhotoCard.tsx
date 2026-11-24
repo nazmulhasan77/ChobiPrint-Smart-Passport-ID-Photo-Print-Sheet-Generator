@@ -8,6 +8,7 @@ import {
 import type { PhotoItem, PhotoDimension, PhotoOrientation, LayoutConfig } from '../types';
 import { BANGLADESH_PRESETS } from '../constants/dimensions';
 import { estimateCopiesPerSheet } from '../utils/packingEngine';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface PhotoCardProps {
   photo: PhotoItem;
@@ -32,6 +33,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({
   onDuplicate,
   onDelete,
 }) => {
+  const { t } = useLanguage();
   const currentOrientation: PhotoOrientation =
     photo.orientation ??
     (photo.dimension.category === 'passport' ? 'horizontal' : 'vertical');
@@ -117,7 +119,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({
                 }`}
                 title="Set Horizontally (Landscape)"
               >
-                ⬌ Horizontal
+                ⬌ {t('horizontal')}
               </button>
               <button
                 type="button"
@@ -129,7 +131,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({
                 }`}
                 title="Set Vertically (Portrait)"
               >
-                ⬍ Vertical
+                ⬍ {t('vertical')}
               </button>
             </div>
 
@@ -178,7 +180,7 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({
         {/* Copies Counter & Quick Presets */}
         <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-slate-100">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-slate-600">Copies:</span>
+            <span className="text-xs font-semibold text-slate-600">{t('copies')}:</span>
             <div className="flex items-center">
               <button
                 type="button"
@@ -206,21 +208,23 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({
 
             {/* Quick buttons */}
             <div className="hidden sm:flex items-center gap-1 ml-1">
-              {[4, 8, capacity.total].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => onUpdateCopies(photo.id, n)}
-                  className={`px-2 py-0.5 rounded text-[11px] font-medium transition cursor-pointer ${
-                    photo.copies === n
-                      ? 'bg-indigo-600 text-white font-bold'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                  title={n === capacity.total ? 'Fill 1 Full A4 Sheet' : undefined}
-                >
-                  {n === capacity.total ? `${n} (Full Sheet)` : n}
-                </button>
-              ))}
+              {Array.from(new Set([4, 8, capacity.total]))
+                .sort((a, b) => a - b)
+                .map((n) => (
+                  <button
+                    key={`quick-cap-${n}`}
+                    type="button"
+                    onClick={() => onUpdateCopies(photo.id, n)}
+                    className={`px-2 py-0.5 rounded text-[11px] font-medium transition cursor-pointer ${
+                      photo.copies === n
+                        ? 'bg-indigo-600 text-white font-bold'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                    title={n === capacity.total ? 'Fill 1 Full A4 Sheet' : undefined}
+                  >
+                    {n === capacity.total ? `${n} (Full Sheet)` : n}
+                  </button>
+                ))}
             </div>
           </div>
 
@@ -230,10 +234,10 @@ export const PhotoCard: React.FC<PhotoCardProps> = ({
               type="button"
               onClick={() => onEditCrop(photo)}
               className="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-indigo-300 bg-white hover:bg-indigo-50/50 text-indigo-600 text-xs font-semibold flex items-center gap-1 transition cursor-pointer"
-              title="Crop & Resize Modal"
+              title={t('cropAdjust')}
             >
               <Crop className="w-3.5 h-3.5" />
-              <span>Crop</span>
+              <span>{t('cropAdjust')}</span>
             </button>
             <button
               type="button"
