@@ -6,8 +6,11 @@
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-4-38bdf8.svg)](https://tailwindcss.com/)
 [![Print DPI](https://img.shields.io/badge/Print_DPI-300_High_Res-emerald.svg)]()
 [![Privacy](https://img.shields.io/badge/Privacy-100%25_Client_Side-success.svg)]()
+[![Live Site](https://img.shields.io/badge/Live_Site-chobiprint.butterflydevs.top-indigo.svg)](https://chobiprint.butterflydevs.top)
 
-> *"Chobi"* means *Picture* or *Photograph* in Bengali. **ChobiPrint** is a modern, privacy-first web utility designed to simplify studio-grade ID and passport photo printing for everyone.
+> *"Chobi"* means *Picture* or *Photograph* in Bengali. **ChobiPrint** is a modern, privacy-first web utility designed to simplify studio-grade ID and passport photo printing and image conversion for everyone.
+
+🌐 **Live Demo:** [https://chobiprint.butterflydevs.top](https://chobiprint.butterflydevs.top)
 
 Instead of opening complex, heavy desktop software like Adobe Photoshop, **ChobiPrint** allows users to crop, arrange, and print standard passport, stamp, and custom ID photos on A4 photo paper with zero hassle, optimal 2D packing, straight cutting lanes, and 300 DPI lab quality.
 
@@ -32,6 +35,15 @@ Instead of opening complex, heavy desktop software like Adobe Photoshop, **Chobi
   - Continuous, unbroken horizontal and vertical cut channels across rows and columns.
   - Easily slice entire strips using a standard paper trimmer, rotary cutter, ruler & blade, or scissors.
   - Even distribution of border whitespace between images for comfortable trimming.
+
+- **🔄 Image Converter, Resizer & Quality Optimizer**:
+  - **Multi-Format Conversion**: Convert between **JPG / JPEG**, **PNG**, and **WEBP** instantly in the browser.
+  - **Custom Dimensions & Scaling**: Resize by exact pixels (`px`), millimeters (`mm` @ 300 DPI), or percentage scaling (`25%`, `50%`, `75%`, `100%`, `150%`, `200%`).
+  - **Aspect Ratio Locking**: Keep original photo proportions or resize freely with the proportional lock toggle.
+  - **Studio Presets**: One-click quick presets for Passport 40×50 mm, Stamp 20×25 mm, 1080p FHD, and 500px square avatars.
+  - **Quality Compression Slider**: Real-time slider (1% to 100%) showing immediate before/after file size and space saved (e.g. `🔻 77% Smaller`).
+  - **Batch ZIP Export**: Download individual converted images or download all in a single `.zip` file using `jszip`.
+  - **Direct Bridge to Print Sheet**: Easily transfer converted & resized photos directly into the passport print layout generator.
 
 - **🌱 Smart Paper-Saving Layout**:
   - Top-aligned vertical packing leaves all unused photo paper consolidated in one clean block at the bottom.
@@ -109,6 +121,7 @@ The optimized production output will be generated inside the `dist/` directory.
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 - **Icons**: [Lucide React](https://lucide.dev/)
 - **PDF Generation**: [jsPDF](https://github.com/parallax/jsPDF)
+- **Batch ZIP Packaging**: [JSZip](https://stuk.github.io/jszip/)
 - **Image Processing**: HTML5 Canvas API (High-DPI 300 DPI rendering)
 
 ---
