@@ -11,6 +11,10 @@
 
 Instead of opening complex, heavy desktop software like Adobe Photoshop, **ChobiPrint** allows users to crop, arrange, and print standard passport, stamp, and custom ID photos on A4 photo paper with zero hassle, optimal 2D packing, straight cutting lanes, and 300 DPI lab quality.
 
+<p align="center">
+  <img src="Screenshot.png" alt="ChobiPrint Application Preview" width="100%" />
+</p>
+
 ---
 
 ## 🌟 Key Features
