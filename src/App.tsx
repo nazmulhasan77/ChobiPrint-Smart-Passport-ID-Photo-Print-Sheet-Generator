@@ -6,6 +6,8 @@ import {
   Plus,
   RefreshCw,
   Info,
+  Printer,
+  Sliders,
 } from 'lucide-react';
 import type { PhotoItem, PhotoDimension, SheetLayout, LayoutConfig, CropSettings, PhotoOrientation } from './types';
 import {
@@ -17,6 +19,7 @@ import { PhotoCard } from './components/PhotoCard';
 import { CropModal } from './components/CropModal';
 import { SheetPreview } from './components/SheetPreview';
 import { PrintContainer } from './components/PrintContainer';
+import { ImageConverter } from './components/ImageConverter';
 import { generateSamplePortrait } from './utils/sampleGenerator';
 
 export const App: React.FC = () => {
@@ -24,12 +27,34 @@ export const App: React.FC = () => {
   const [sheets, setSheets] = useState<SheetLayout[]>([]);
   const [layoutConfig, setLayoutConfig] = useState<LayoutConfig>(DEFAULT_LAYOUT_CONFIG);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'print-sheet' | 'converter'>('print-sheet');
 
   // Active crop modal state
   const [activeCropPhoto, setActiveCropPhoto] = useState<PhotoItem | null>(null);
   const [isCropModalOpen, setIsCropModalOpen] = useState<boolean>(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Transfer converted photo directly into the Passport Print Sheet queue
+  const handleSendToPrintSheet = (imageUrl: string, fileName: string) => {
+    const newPhoto: PhotoItem = {
+      id: `photo-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      fileName,
+      fileSize: 0,
+      originalUrl: imageUrl,
+      croppedUrl: imageUrl,
+      dimension: DEFAULT_DIMENSION,
+      orientation: 'horizontal',
+      copies: 28,
+      aspectRatio: DEFAULT_DIMENSION.widthMm / DEFAULT_DIMENSION.heightMm,
+    };
+    setPhotos((prev) => {
+      const updated = [...prev, newPhoto];
+      handleProcessPhotos(updated);
+      return updated;
+    });
+    setActiveTab('print-sheet');
+  };
 
   // Auto-pack on initial demo load or when user explicitly clicks Process
   const handleProcessPhotos = (currentPhotos: PhotoItem[] = photos) => {
@@ -243,34 +268,98 @@ export const App: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Header Actions */}
-          <div className="flex items-center gap-2.5">
+          {/* Mode Switcher Tabs */}
+          <nav className="hidden md:flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200">
             <button
               type="button"
-              onClick={handleLoadDemo}
-              className="px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold flex items-center gap-1.5 transition"
-              title="Load sample photos to test instantly"
+              onClick={() => setActiveTab('print-sheet')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                activeTab === 'print-sheet'
+                  ? 'bg-white text-indigo-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Load Demo</span>
+              <Printer className="w-3.5 h-3.5" />
+              <span>Passport Print Sheet</span>
             </button>
 
-            {photos.length > 0 && (
-              <button
-                type="button"
-                onClick={handleClearAll}
-                className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-medium transition"
-              >
-                Clear All
-              </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('converter')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                activeTab === 'converter'
+                  ? 'bg-white text-indigo-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              <Sliders className="w-3.5 h-3.5" />
+              <span>Converter & Resizer</span>
+            </button>
+          </nav>
+
+          {/* Quick Header Actions */}
+          <div className="flex items-center gap-2.5">
+            {activeTab === 'print-sheet' && (
+              <>
+                <button
+                  type="button"
+                  onClick={handleLoadDemo}
+                  className="px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold flex items-center gap-1.5 transition"
+                  title="Load sample photos to test instantly"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Load Demo</span>
+                </button>
+
+                {photos.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleClearAll}
+                    className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-medium transition"
+                  >
+                    Clear All
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>
       </header>
 
+      {/* Mobile Tab Switcher */}
+      <div className="md:hidden no-print bg-white border-b border-slate-200 px-4 py-2 flex items-center justify-center gap-2">
+        <button
+          type="button"
+          onClick={() => setActiveTab('print-sheet')}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+            activeTab === 'print-sheet'
+              ? 'bg-indigo-50 border border-indigo-200 text-indigo-700'
+              : 'text-slate-600 hover:bg-slate-50'
+          }`}
+        >
+          <Printer className="w-3.5 h-3.5" />
+          <span>Passport Print</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('converter')}
+          className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+            activeTab === 'converter'
+              ? 'bg-indigo-50 border border-indigo-200 text-indigo-700'
+              : 'text-slate-600 hover:bg-slate-50'
+          }`}
+        >
+          <Sliders className="w-3.5 h-3.5" />
+          <span>Converter & Resizer</span>
+        </button>
+      </div>
+
       {/* Main App Workspace */}
       <main className="no-print flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {activeTab === 'converter' ? (
+          <ImageConverter onSendToPrintSheet={handleSendToPrintSheet} />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Photo Upload, Queue & Processing Controls (lg:col-span-6) */}
           <div className="lg:col-span-6 space-y-5">
             {/* Upload Drop Zone */}
@@ -414,6 +503,7 @@ export const App: React.FC = () => {
             />
           </div>
         </div>
+        )}
       </main>
 
       {/* Interactive Crop & Resize Overlay Modal */}

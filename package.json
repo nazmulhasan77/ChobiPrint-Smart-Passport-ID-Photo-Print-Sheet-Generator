@@ -11,12 +11,14 @@
   },
   "dependencies": {
     "jspdf": "^4.2.1",
+    "jszip": "^3.10.2",
     "lucide-react": "^1.79.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.5",
+    "@types/jszip": "^3.4.0",
     "@types/node": "^24.19.2",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
